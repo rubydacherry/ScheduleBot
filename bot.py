@@ -1,5 +1,46 @@
-import requests  
+import requests
 import datetime
+
+url = "https://api.telegram.org/bot<ваш_токен>/"
+
+
+def get_updates_json(request):  
+    response = requests.get(request + 'getUpdates')
+    return response.json()
+
+
+def last_update(data):  
+    results = data['result']
+    total_updates = len(results) - 1
+    return results[total_updates]
+
+def get_chat_id(update):  
+    chat_id = update['message']['chat']['id']
+    return chat_id
+
+def send_mess(chat, text):  
+    params = {'chat_id': chat, 'text': text}
+    response = requests.post(url + 'sendMessage', data=params)
+    return response
+
+chat_id = get_chat_id(last_update(get_updates_json(url)))
+send_mess(chat_id, 'Your message goes here')
+
+def main():  
+    update_id = last_update(get_updates_json(url))['update_id']
+    while True:
+        if update_id == last_update(get_updates_json(url))['update_id']:
+           send_mess(get_chat_id(last_update(get_updates_json(url))), 'test')
+           update_id += 1
+        sleep(1)       
+
+if __name__ == '__main__':  
+    main()
+
+def get_updates_json(request):  
+    params = {'timeout': 100, 'offset': None}
+    response = requests.get(request + 'getUpdates', data=params)
+    return response.json()
 
 class BotHandler:
 
@@ -31,9 +72,9 @@ class BotHandler:
         return last_update
 
 greet_bot = BotHandler(token)  
-greetings = ('hi', 'hello', 'здравствуй', 'привет', 'ку', 'здорово', 'прив', 'хай')
-scheduleAsking = ('пары', 'schedule', 'pairs', 'расписание', 'расписание пар')
+greetings = ('здравствуй', 'привет', 'ку', 'здорово')  
 now = datetime.datetime.now()
+
 
 def main():  
     new_offset = None
@@ -61,26 +102,6 @@ def main():
         elif last_chat_text.lower() in greetings and today == now.day and 17 <= hour < 23:
             greet_bot.send_message(last_chat_id, 'Добрый вечер, {}'.format(last_chat_name))
             today += 1
-        elif last_chat_text.lower() in scheduleAsking and datetime.datetime.today().weekday() == 0:
-            greet_bot.send_message('Monday pairs')
-
-        elif last_chat_text.lower() in scheduleAsking and datetime.datetime.today().weekday() == 1:
-            greet_bot.send_message('Tuesday pairs')
-
-        elif last_chat_text.lower() in scheduleAsking and datetime.datetime.today().weekday() == 2:
-            greet_bot.send_message('Wednesday pairs')
-
-        elif last_chat_text.lower() in scheduleAsking and datetime.datetime.today().weekday() == 3:
-            greet_bot.send_message('Thursday pairs')
-
-        elif last_chat_text.lower() in scheduleAsking and datetime.datetime.today().weekday() == 4:
-            greet_bot.send_message('Friday pairs')
-
-        elif last_chat_text.lower() in scheduleAsking and datetime.datetime.today().weekday() == 5:
-            greet_bot.send_message('Saturday pairs')
-
-        elif last_chat_text.lower() in scheduleAsking and datetime.datetime.today().weekday() == 6:
-            greet_bot.send_message('Sunday pairs')
 
         new_offset = last_update_id + 1
 
@@ -89,3 +110,4 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         exit()
+
