@@ -1,13 +1,12 @@
 import requests
+from time import sleep
 import datetime
 
-url = "https://api.telegram.org/bot<ваш_токен>/"
-
+url = "https://api.telegram.org/bot693504057:AAF56kZHnpjAmWjvNiwLWTaEh0m0WBkQnbY/"
 
 def get_updates_json(request):  
     response = requests.get(request + 'getUpdates')
     return response.json()
-
 
 def last_update(data):  
     results = data['result']
@@ -71,6 +70,7 @@ class BotHandler:
 
         return last_update
 
+token = '693504057:AAF56kZHnpjAmWjvNiwLWTaEh0m0WBkQnbY'
 greet_bot = BotHandler(token)  
 greetings = ('здравствуй', 'привет', 'ку', 'здорово')  
 now = datetime.datetime.now()
